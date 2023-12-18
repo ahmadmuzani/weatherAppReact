@@ -24,30 +24,12 @@ const WeatherNow = ({ apiKey }) => {
         const lonMaps = (data.coord ? data.coord.lon : null)
         if (event.key === 'Enter') {
             let cleanUp = false;
-            const urlForecast = `https://api.openweathermap.org/data/2.5/forecast?lat=${latMaps}&lon=${lonMaps}&appid=a4eb5a83d98de3a29acfe49eb1b8c27a`
-            axios.get(urlForecast).then((response) => {
-                setDataF(response.data)
-                console.log(response.data)
-            })
-
-            const getIP = async () => {
-
-                try {
-                    const response = await fetch('http://api.ipapi.com/api/check?access_key=cd01f8ea66aad72a82a1efc62c049b34');
-                    const datas = await response.json();
-
-                    // Ambil alamat IP dari respons JSON
-                    // if (!cleanUp) {
-
-                    console.log(latMaps)
-                    console.log('ini kalo tidak undifined')
-                    // }
-                } catch (error) {
-
-                }
-            };
-            getIP();
             if (!cleanUp) {
+                const urlForecast = `https://api.openweathermap.org/data/2.5/forecast?lat=${latMaps}&lon=${lonMaps}&appid=a4eb5a83d98de3a29acfe49eb1b8c27a`
+                axios.get(urlForecast).then((response) => {
+                    setDataF(response.data)
+                    console.log(response.data)
+                })
                 const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=imperial&appid=a4eb5a83d98de3a29acfe49eb1b8c27a`
                 axios.get(url).then((response) => {
                     setData(response.data)
@@ -86,13 +68,62 @@ const WeatherNow = ({ apiKey }) => {
 
     let img;
     if (clouds == null) {
-        img = <img className="w-full img rounded" src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bW9kZXJuJTIwaG91c2V8ZW58MHx8MHx8&w=1000&q=80" alt="Property Image" />
+        img = <img style={{ width: "100%", height: "400px" }} className="w-full img rounded" src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bW9kZXJuJTIwaG91c2V8ZW58MHx8MHx8&w=1000&q=80" alt="Property Image" />
     } else if (clouds == 'Clouds') {
-        img = <img className="w-full img rounded" src="https://images.unsplash.com/photo-1534629938736-b1b076531d3b?auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&w=1074" alt="" />
+        img = <img style={{ width: "100%", height: "400px" }} className="w-full img rounded" src="https://images.unsplash.com/photo-1593978301851-40c1849d47d4?q=80&w=2127&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" />
+    } else if (clouds == 'Haze') {
+        img = <img style={{ width: "100%", height: "400px" }} className="w-full img rounded" src="https://images.unsplash.com/36/STzPBJUsSza3mzUxiplj_DSC09775.JPG?q=80&w=2061&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" />
     } else {
-        img = <img className="w-full img rounded" src="https://images.unsplash.com/photo-1470432581262-e7880e8fe79a?auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&w=1172" alt="" />
+        img = <img style={{ width: "100%", height: "400px" }} className="w-full img rounded" src="https://images.unsplash.com/photo-1470432581262-e7880e8fe79a?auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&w=1172" alt="" />
     }
+    const [ipAddress, setIpAddress] = useState(null);
 
+    useEffect(() => {
+        const getIPAddress = async () => {
+            try {
+                const responseIP = await fetch('https://api64.ipify.org/?format=json');
+                const numberIP = await responseIP.json();
+                const ip = numberIP.ip;
+                const response = await fetch(`http://ip-api.com/json/${ip}`);
+                const dataIP = await response.json();
+
+                // Ambil alamat IP dari respons JSON
+                const userIP = dataIP.city;
+                // const latUserIP = datas.latitude;
+                // const lonUserIP = datas.longitude;
+
+                setIpAddress(userIP);
+                let cleanUp;
+                if (!cleanUp) {
+
+
+                    if (city == undefined) {
+                        const urls = `https://api.openweathermap.org/data/2.5/weather?q=${userIP}&units=imperial&appid=895284fb2d2c50a520ea537456963d9c`
+                        axios.get(urls).then((response) => {
+                            setData(response.data)
+                            console.log(response.data)
+                        })
+                            .catch(error => {
+                                // Handle error
+                                if (error.response) {
+                                    console.log('Response data:', error.response.data);
+                                    console.log('Response status:', error.response.status);
+                                    console.log('Response headers:', error.response.headers);
+                                } else if (error.request) {
+                                    console.log('No response received:', error.request);
+                                } else {
+                                    console.log('Error setting up the request:', error.message);
+                                }
+                                console.log('Error config:', error.config);
+                            });
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching IP address:', error);
+            }
+        };
+        getIPAddress();
+    }, []);
 
     const date = new Date();
     const tanggal = date.getDate()
@@ -127,7 +158,7 @@ const WeatherNow = ({ apiKey }) => {
                         onKeyPress={searchLocation} type="text" className="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search City" required />
                 </div>
 
-                <div style={{ width: "100%", height: "300px" }} ref={mapRef} />
+                <div>{img}</div>
 
                 <div className="px-6 py-4">
 
@@ -172,7 +203,7 @@ const WeatherNow = ({ apiKey }) => {
                         {data.main ? <h1 className="text-5xl font-extrabold pr-6">{data.main.temp.toFixed()} °F</h1> : 'tidak ada'}
                         {data.main ? <h1 className="text-5xl font-extrabold">{Math.round((data.main.temp - 32) / 1.8)} °C</h1> : 'tidak ada'}
                     </div>
-                    <Forecast data={data} />
+                    {/* <Forecast data={data} /> */}
                 </div>
             </div>
         </div>
@@ -180,47 +211,47 @@ const WeatherNow = ({ apiKey }) => {
 }
 
 export default WeatherNow
-const Forecast = ({ data }) => {
-    const latMaps = (data.coord ? data.coord.lat : null)
-    const lonMaps = (data.coord ? data.coord.lon : null)
+// const Forecast = ({ data }) => {
+//     const latMaps = (data.coord ? data.coord.lat : null)
+//     const lonMaps = (data.coord ? data.coord.lon : null)
 
 
-    return (
-        <div className='mt-5'>
-            <h2 className='text font-bold text-gray-900'>Forecast</h2>
-            <div className="flex">
-                <div className="">
-                    <p></p>
-                </div>
-                <div className="ml-4 ">
-                    <p>Humidity</p>
-                </div>
-                <div className="ml-4">
-                    <p>Wind Speed</p>
-                </div>
-                <div className="ml-4">
-                    <p>Sunrise</p>
-                </div>
-                <div className="ml-4">
-                    <p>Sunset</p>
-                </div>
+//     return (
+//         <div className='mt-5'>
+//             <h2 className='text font-bold text-gray-900'>Forecast</h2>
+//             <div className="flex">
+//                 <div className="">
+//                     <p></p>
+//                 </div>
+//                 <div className="ml-4 ">
+//                     <p>Humidity</p>
+//                 </div>
+//                 <div className="ml-4">
+//                     <p>Wind Speed</p>
+//                 </div>
+//                 <div className="ml-4">
+//                     <p>Sunrise</p>
+//                 </div>
+//                 <div className="ml-4">
+//                     <p>Sunset</p>
+//                 </div>
 
 
-            </div>
-        </div>
-    )
-}
+//             </div>
+//         </div>
+//     )
+// }
 
-  // var timestampNow = Math.floor(Date.now() / 1000);
+// var timestampNow = Math.floor(Date.now() / 1000);
 
-  // // Buat objek Date dengan menggunakan timestamp
-  // var date = new Date(timestampNow * 1000); // Kali 1000 karena timestamp umumnya dalam detik, tetapi Date menggunakan milidetik
+// // Buat objek Date dengan menggunakan timestamp
+// var date = new Date(timestampNow * 1000); // Kali 1000 karena timestamp umumnya dalam detik, tetapi Date menggunakan milidetik
 
-  // // Dapatkan informasi tanggal
-  // var year = date.getFullYear();
-  // var month = date.getMonth() + 1; // Perlu ditambah 1 karena bulan dimulai dari 0
-  // var day = date.getDate();
-  // const tanggal = year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day
-  // let dateObject = new Date(tanggal);
-  // const dayOfWeek = dateObject.toLocaleDateString('en-US', { weekday: 'long' });
-  // console.log(dayOfWeek)
+// // Dapatkan informasi tanggal
+// var year = date.getFullYear();
+// var month = date.getMonth() + 1; // Perlu ditambah 1 karena bulan dimulai dari 0
+// var day = date.getDate();
+// const tanggal = year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day
+// let dateObject = new Date(tanggal);
+// const dayOfWeek = dateObject.toLocaleDateString('en-US', { weekday: 'long' });
+// console.log(dayOfWeek)
